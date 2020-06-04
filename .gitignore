@@ -114,6 +114,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-weights.*
-bert_output.*
-yelp_review.*
+weights**
+bert_output**
+yelp_review**
