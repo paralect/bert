@@ -1,0 +1,11 @@
+version: '2.3'
+
+services:
+  tf-serve:
+    image: pvkomodey/paralect-bert-tf-serve:1.0.0
+  bert-api:
+    image: pvkomodey/paralect-sentiment-api:1.0.0
+    ports:
+      - 8502:8502
+    environment:
+      SERVE_API_HOST: tf-serve
