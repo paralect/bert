@@ -29,7 +29,8 @@ Then build public API using `Dockerfile.public-api`. During run, you need to spe
 API reference can be found under the `/docs` endpoint
 
 ## Running the server
-bs```
+
+```
 docker-compose up
 ```
 
