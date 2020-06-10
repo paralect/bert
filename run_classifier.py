@@ -50,6 +50,11 @@ flags.DEFINE_string(
     "output_dir", None,
     "The output directory where the model checkpoints will be written.")
 
+flags.DEFINE_string(
+    "export_dir", None,
+    "Export directory.")
+
+
 ## Other parameters
 
 flags.DEFINE_string(
@@ -70,6 +75,10 @@ flags.DEFINE_integer(
 flags.DEFINE_bool("do_train", False, "Whether to run training.")
 
 flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
+
+flags.DEFINE_bool("do_export", False, "Whether to run export of the model.")
+
+
 
 flags.DEFINE_bool(
     "do_predict", False,
@@ -353,12 +362,15 @@ class ColaProcessor(DataProcessor):
 
   def get_labels(self):
     """See base class."""
-    return ["0", "1"]
+    return ["0", "1", "2", "3", "4"]
 
   def _create_examples(self, lines, set_type):
     """Creates examples for the training and dev sets."""
     examples = []
     for (i, line) in enumerate(lines):
+
+      print('***********************************')
+      print(line)
       # Only the test set has a header
       if set_type == "test" and i == 0:
         continue
@@ -779,6 +791,18 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
     features.append(feature)
   return features
 
+def serving_input_fn():
+    label_ids = tf.placeholder(tf.int32, [None], name='label_ids')
+    input_ids = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='input_ids')
+    input_mask = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='input_mask')
+    segment_ids = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='segment_ids')
+    input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
+        'label_ids': label_ids,
+        'input_ids': input_ids,
+        'input_mask': input_mask,
+        'segment_ids': segment_ids,
+    })()
+    return input_fn
 
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
@@ -793,7 +817,7 @@ def main(_):
   tokenization.validate_case_matches_checkpoint(FLAGS.do_lower_case,
                                                 FLAGS.init_checkpoint)
 
-  if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict:
+  if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict and not FLAGS.do_export:
     raise ValueError(
         "At least one of `do_train`, `do_eval` or `do_predict' must be True.")
 
@@ -924,6 +948,10 @@ def main(_):
       for key in sorted(result.keys()):
         tf.logging.info("  %s = %s", key, str(result[key]))
         writer.write("%s = %s\n" % (key, str(result[key])))
+  if FLAGS.do_export:
+    estimator._export_to_tpu = False
+    estimator.export_savedmodel(FLAGS.export_dir, serving_input_fn)
+
 
   if FLAGS.do_predict:
     predict_examples = processor.get_test_examples(FLAGS.data_dir)

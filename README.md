@@ -1,3 +1,34 @@
+# This is the fork from the official repository https://github.com/google-research/bert
+
+
+The model was trained using weights: BERT-Base, Cased. 12-Layer, 768 hidden, 12-heads, 110 millions parameters. The model was trained on top of single Google TPU using open dataset Yulp Review Comments.
+Python3.6, Tensorflow==1.15.0
+
+The original ColaProcessor was modified to accept multi label classification task - predict sentiments from the input text
+
+The model wrapped using tensorflow serving model which in the order is wrapped by single FastAPI server which accepts simple text and return array of probabilities of each class: `[${p_0}, ${p_1}, ${p_2}, ${p_3}, ${p_4}]`. Order is ASC - from anger to happiness
+
+First of all, data should be prepared. It should has appropriate labels (from 0 to 4) and a text. All this should be as part of 2 files - `train.tsv` and `test.csv`. Train should contain training data and test - data used for checking the model accuracy
+
+To train the model run `./classify.sh`. Repository should contain weights under `weights_base/` folder 
+ and the data under `/yelp_review_full_csv`
+
+To predict sentiments run `./predict.sh` script. The data for prediction should be in the `yelp_review_full_csv/test.tsv`. To make sure that everything is ok with test.tsv itself - you can modify and run `./python prepare-test.py` to generate valid `test.tsv` file
+
+## Prepare the model to export
+
+To export the model - run `./export.sh`. This will take the model from `/bert_output_base` and generate the binary which is applicable to be served using Tensorflow Serving. This script will copy the model to the `/bert_model` output.
+
+
+## Explore the model via API
+
+Build the tensorflow serving model using `Dockerfile.tf-serving`. Then deploy it to your environment
+Then build public API using `Dockerfile.public-api`. During run, you need to specify `SERVE_API_HOST` and `SERVE_API_PORT` from tf-serving app
+
+
+API reference can be found under the `/docs` endpoint
+
+
 # BERT
 
 **\*\*\*\*\* New March 11th, 2020: Smaller BERT Models \*\*\*\*\***

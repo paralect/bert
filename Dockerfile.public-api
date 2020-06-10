@@ -1,0 +1,16 @@
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.6
+
+WORKDIR /usr/src/app
+
+RUN pip install tensorflow==1.15.0 requests
+
+COPY ./weights_base/uncased_L-12_H-768_A-12/vocab.txt ./vocab.txt
+COPY *py ./
+
+ENV VOCAB_FILE=/usr/src/app/vocab.txt
+ENV SERVE_API_HOST=
+ENV SERVE_API_PORT=
+
+EXPOSE 8502
+
+CMD ["uvicorn", "api-server:app", "--host", "0.0.0.0", "--port", "8502"]

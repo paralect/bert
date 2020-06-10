@@ -1,3 +1,4 @@
-weights**
 bert_output**
 yelp_review**
+__pycache__**
+bert_output_base**

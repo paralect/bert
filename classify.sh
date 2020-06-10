@@ -1,0 +1,15 @@
+python run_classifier.py 
+    --task_name=cola \
+    --do_train=true \
+    --do_eval=true \
+    --data_dir=yelp_review_full_csv/ \
+    --vocab_file="./weights_1/vocab.txt" \
+    --bert_config_file="./weights_1/bert_config.json" \
+    --init_checkpoint="./weights_1/bert_model.ckpt" \
+    --max_seq_length=64 \
+    --train_batch_size=2 \
+    --learning_rate=2e-5 \
+    --num_train_epochs=3.0 \
+    --output_dir="./bert_output/" \
+    --do_lower_case=True \
+    --save_checkpoints_steps 10000 \

@@ -117,3 +117,4 @@ dmypy.json
 weights**
 bert_output**
 yelp_review**
+bert_model/
